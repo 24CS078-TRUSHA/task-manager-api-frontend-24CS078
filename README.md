@@ -16,18 +16,3 @@ The frontend communicates with the Node.js + Express backend through REST API ca
 - Fetch API
 
 ---
-
-## Project Structure
-task-manager-frontend
-│
-├── public
-│
-├── src
-│   ├── App.jsx
-│   ├── App.css
-│   └── main.jsx
-│
-├── .gitignore
-├── index.html
-├── package.json
-└── package-lock.json
