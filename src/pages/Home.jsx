@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import "../App.css";
 
-const API_URL = "http://localhost:5000/tasks";
-const AUTH_URL = "http://localhost:5000/auth";
+const API_URL = "/tasks";
+const AUTH_URL = "/auth";
 
 function Home() {
     const [tasks, setTasks] = useState([]);
