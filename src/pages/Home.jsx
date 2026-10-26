@@ -17,6 +17,8 @@ function Home() {
 
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
+    const [aiLoading, setAiLoading] = useState(false);
+    const [aiNotice, setAiNotice] = useState("");
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -100,6 +102,41 @@ function Home() {
         setUser(null);
         setTasks([]);
         setAuthNotice("");
+    };
+
+    const generateDescription = async () => {
+        if (!title.trim()) {
+            setAiNotice("Enter a task title before generating a description.");
+            return;
+        }
+
+        setAiLoading(true);
+        setAiNotice("");
+
+        try {
+            const response = await authenticatedFetch("/api/ai/generate-description", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ title: title.trim() })
+            });
+            const data = await response.json();
+
+            if (!response.ok) {
+                setAiNotice(data.message || "AI description generation is unavailable. You can enter a description manually.");
+                return;
+            }
+
+            setDescription(data.description);
+            setAiNotice("AI suggestion added. Review or edit it before saving.");
+        } catch (error) {
+            setAiNotice(error.message === "Please sign in to continue."
+                ? error.message
+                : "Could not reach AI description generation. You can enter a description manually.");
+        } finally {
+            setAiLoading(false);
+        }
     };
 
     const addTask = async (e) => {
@@ -376,18 +413,37 @@ function Home() {
                     placeholder="Task title"
                     value={title}
                     onChange={(e) =>
-                        setTitle(e.target.value)
+                        {
+                            setTitle(e.target.value);
+                            setAiNotice("");
+                        }
                     }
                 />
 
-                <input
-                    type="text"
+                <button
+                    type="button"
+                    onClick={generateDescription}
+                    disabled={aiLoading || !title.trim()}
+                >
+                    {aiLoading ? "Generating..." : "Generate description"}
+                </button>
+
+                <textarea
+                    rows="4"
                     placeholder="Task description"
                     value={description}
                     onChange={(e) =>
                         setDescription(e.target.value)
                     }
                 />
+                <p className="ai-disclaimer">
+                    AI-generated suggestion: review and edit it before saving.
+                </p>
+                {aiNotice && (
+                    <p className="ai-notice" role="status">
+                        {aiNotice}
+                    </p>
+                )}
 
                 <button type="submit">
                     Add Task
